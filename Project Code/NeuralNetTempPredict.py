@@ -5,7 +5,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
 # Load the dataset
-# Replace 'path_to_dataset.csv' with the actual path to your downloaded CSV file
 dataset_path = 'GlobalTemperatures.csv'
 df = pd.read_csv(dataset_path)
 
