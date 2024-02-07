@@ -6,7 +6,6 @@ from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 
 # Load the dataset
-# Replace 'path_to_dataset.csv' with the actual path to your downloaded CSV file
 dataset_path = 'GlobalTemperatures.csv'
 df = pd.read_csv(dataset_path)
 
@@ -64,28 +63,30 @@ history = model.fit(X_train, y_train, epochs=50, batch_size=16, validation_split
 loss = model.evaluate(X_test, y_test)
 print(f'Test Loss: {loss:.4f}')
 
+model.save('TempPredictions.keras')
+
 # Make predictions on new data for the next 10 steps
-new_temperature_data = X_scaled[-sequence_length:].reshape(1, sequence_length, 1)
+#new_temperature_data = X_scaled[-sequence_length:].reshape(1, sequence_length, 1)
 
-year_predictions = []
-number_of_years = 30
-for _ in range(number_of_years):
-    predictions = []
-
-    for _ in range(365):
-        predicted_temperature_scaled = model.predict(new_temperature_data)[0, 0]
-        predictions.append(scaler_y.inverse_transform([[predicted_temperature_scaled]])[0, 0])
-    
-        # Update the input sequence for the next prediction
-        new_temperature_data = np.roll(new_temperature_data, -1, axis=1)
-        new_temperature_data[0, -1, 0] = predicted_temperature_scaled
-    
-    year_average = sum(predictions)/len(predictions)
-    year_predictions.append(year_average)
-
+#year_predictions = []
+#number_of_years = 30
+#for _ in range(number_of_years):
+#    predictions = []
+#
+#    for _ in range(365):
+#        predicted_temperature_scaled = model.predict(new_temperature_data)[0, 0]
+#        predictions.append(scaler_y.inverse_transform([[predicted_temperature_scaled]])[0, 0])
+#    
+#        # Update the input sequence for the next prediction
+#        new_temperature_data = np.roll(new_temperature_data, -1, axis=1)
+#        new_temperature_data[0, -1, 0] = predicted_temperature_scaled
+#    
+#    year_average = sum(predictions)/len(predictions)
+#    year_predictions.append(year_average)
+#
 #print(f'Predicted Temperatures for the Next 10 Steps: {predictions}')
-
-plt.title("Line graph for temperatures in the next 30 years")
-plt.plot(range(1, number_of_years + 1), year_predictions, color="red")
-print("For next 30 years")
-plt.show()
+#
+#plt.title("Line graph for temperatures in the next 30 years")
+#plt.plot(range(1, number_of_years + 1), year_predictions, color="red")
+#print("For next 30 years")
+#plt.show()
