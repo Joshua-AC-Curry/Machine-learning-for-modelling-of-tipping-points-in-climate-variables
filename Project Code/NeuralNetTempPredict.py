@@ -9,9 +9,12 @@ import matplotlib.pyplot as plt
 dataset_path = 'GlobalTemperatures.csv'
 df = pd.read_csv(dataset_path)
 
+print(df.head())
+
 # Extract relevant columns
 df = df[['dt', 'LandAverageTemperature']]
 df['dt'] = pd.to_datetime(df['dt'])
+df['dt'] = pd.to_numeric(df['dt'])
 df = df.set_index('dt')
 
 # Add a column for temperature change
@@ -47,46 +50,26 @@ X_train, X_test, y_train, y_test = train_test_split(X_sequence, y_sequence, test
 
 # Build the LSTM model
 model = tf.keras.Sequential([
-    tf.keras.layers.LSTM(64, activation='relu', input_shape=(sequence_length, 1), return_sequences=True),
-    tf.keras.layers.LSTM(32, activation='relu', return_sequences=True),
-    tf.keras.layers.LSTM(16, activation='relu'),
-    tf.keras.layers.Dense(1)
-])
+    tf.keras.layers.LSTM(64, activation='relu', input_shape=(sequence_length, 1), return_sequences=True, kernel_initializer='normal'),
+    tf.keras.layers.LSTM(32, activation='relu', return_sequences=True, kernel_initializer='normal'),
+    tf.keras.layers.LSTM(32, activation='relu', return_sequences=True, kernel_initializer='normal'),
+    tf.keras.layers.LSTM(32, activation='relu', return_sequences=True, kernel_initializer='normal'),
+    tf.keras.layers.LSTM(32, activation='relu', return_sequences=True, kernel_initializer='normal'),
+    tf.keras.layers.LSTM(32, activation='relu', return_sequences=True, kernel_initializer='normal'),
+    tf.keras.layers.LSTM(32, activation='relu', return_sequences=True, kernel_initializer='normal'),
+    tf.keras.layers.LSTM(16, activation='relu', kernel_initializer='normal'),
+    tf.keras.layers.Dense(1, activation='linear', kernel_initializer='normal')
+]) #Note: too many layers overfitting so less layers means trend still goes up
 
 # Compile the model
 model.compile(optimizer='adam', loss='mean_squared_error')
 
 # Train the model
-history = model.fit(X_train, y_train, epochs=50, batch_size=16, validation_split=0.2)
+history = model.fit(X_train, y_train, epochs=100, batch_size=16, validation_split=0.2)
 
 # Evaluate the model on the test set
 loss = model.evaluate(X_test, y_test)
 print(f'Test Loss: {loss:.4f}')
 
+# Saving model
 model.save('TempPredictions.keras')
-
-# Make predictions on new data for the next 10 steps
-#new_temperature_data = X_scaled[-sequence_length:].reshape(1, sequence_length, 1)
-
-#year_predictions = []
-#number_of_years = 30
-#for _ in range(number_of_years):
-#    predictions = []
-#
-#    for _ in range(365):
-#        predicted_temperature_scaled = model.predict(new_temperature_data)[0, 0]
-#        predictions.append(scaler_y.inverse_transform([[predicted_temperature_scaled]])[0, 0])
-#    
-#        # Update the input sequence for the next prediction
-#        new_temperature_data = np.roll(new_temperature_data, -1, axis=1)
-#        new_temperature_data[0, -1, 0] = predicted_temperature_scaled
-#    
-#    year_average = sum(predictions)/len(predictions)
-#    year_predictions.append(year_average)
-#
-#print(f'Predicted Temperatures for the Next 10 Steps: {predictions}')
-#
-#plt.title("Line graph for temperatures in the next 30 years")
-#plt.plot(range(1, number_of_years + 1), year_predictions, color="red")
-#print("For next 30 years")
-#plt.show()
