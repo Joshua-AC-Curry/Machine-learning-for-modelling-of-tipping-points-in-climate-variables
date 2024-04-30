@@ -3,10 +3,16 @@ import numpy as np
 import tensorflow as tf
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt
+import unittest
+import os
 
 # Load the dataset
 dataset_path = 'GlobalTemperatures.csv'
+#unit test to make sure the files exists
+assert os.path.isfile(dataset_path) == True
 df = pd.read_csv(dataset_path)
+
 
 # Extract relevant columns
 df = df[['dt', 'LandAverageTemperature']]
@@ -58,17 +64,17 @@ for train_index, test_index in tscv.split(X_sequence):
     
     # Build the LSTM model
     model = tf.keras.Sequential([
-        tf.keras.layers.LSTM(64, activation='relu', input_shape=(sequence_length, 1), return_sequences=True, kernel_initializer='normal'),
-        tf.keras.layers.LSTM(32, activation='relu', return_sequences=True, kernel_initializer='normal'),
-        tf.keras.layers.LSTM(16, activation='relu', kernel_initializer='normal'),
-        tf.keras.layers.Dense(1, activation='linear', kernel_initializer='normal')
+        tf.keras.layers.LSTM(64, activation='relu', input_shape=(sequence_length, 1), return_sequences=True, kernel_initializer='random_normal'),
+        tf.keras.layers.LSTM(32, activation='relu', return_sequences=True, kernel_initializer='random_normal'),
+        tf.keras.layers.LSTM(16, activation='relu', kernel_initializer='random_normal'),
+        tf.keras.layers.Dense(1, activation='linear', kernel_initializer='random_normal')
     ])
 
     # Compile the model
     model.compile(optimizer='adam', loss='mean_squared_error')
 
     # Train the model
-    model.fit(X_train, y_train, epochs=100, batch_size=16, verbose=0)
+    history = model.fit(X_train, y_train, epochs=10, batch_size=16, verbose=0, validation_data=(X_test, y_test))
     
     # Evaluate the model on the test set for this fold
     loss = model.evaluate(X_test, y_test)
@@ -80,3 +86,20 @@ print(f'Mean Test Loss: {mean_test_loss:.4f}')
 
 # Saving model
 model.save('TempPredictions_TimeSeriesCV.keras')
+
+# Plotting loss function
+errorPlot = True
+if errorPlot:
+    #model = tf.keras.models.load_model('TempPredictions_TimeSeriesCV.keras')
+    print(history.history.keys())
+
+    # Set the font size
+    plt.rcParams['font.size'] = 18
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+

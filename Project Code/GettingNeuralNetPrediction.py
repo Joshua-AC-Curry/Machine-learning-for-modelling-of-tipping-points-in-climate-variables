@@ -5,8 +5,10 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 import pandas as pd
 import numpy as np
+import os
 
-
+#unit test to make sure the files exists
+assert os.path.isfile('TempPredictions_TimeSeriesCV.keras') == True
 model = tf.keras.models.load_model('TempPredictions_TimeSeriesCV.keras')
 
 model.summary()
@@ -14,6 +16,8 @@ model.summary()
 # Load the dataset
 # Replace 'path_to_dataset.csv' with the actual path to your downloaded CSV file
 dataset_path = 'GlobalTemperatures.csv'
+#unit test to make sure the files exists
+assert os.path.isfile(dataset_path) == True
 df = pd.read_csv(dataset_path)
 
 # Extract relevant columns
@@ -48,12 +52,12 @@ year_predictions = []
 new_temperature_data = X_scaled[-sequence_length:].reshape(1, sequence_length, 1)
 
 year_predictions = []
-number_of_years = 50
+number_of_years = 100
 individual_predictions = []
 for _ in range(number_of_years):
     predictions = []
 
-    for _ in range(365):
+    for _ in range(12):
         predicted_temperature_scaled = model.predict(new_temperature_data)[0, 0]
         prediction = scaler_y.inverse_transform([[predicted_temperature_scaled]])[0, 0]
         predictions.append(prediction)
